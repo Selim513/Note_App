@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:hive/hive.dart';
-import 'package:note_app/model/note_model.dart';
-import 'package:note_app/widgets/custom_button.dart';
-import 'package:note_app/widgets/custom_textFormField.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:note_app/cubit/add_note_cubit/add_note_cubit.dart';
+import 'package:note_app/cubit/add_note_cubit/add_note_state.dart';
+import 'package:note_app/widgets/custom_Form_Add_Note.dart';
 
 class CustomAddNotesWidget extends StatefulWidget {
   const CustomAddNotesWidget({
@@ -15,53 +15,29 @@ class CustomAddNotesWidget extends StatefulWidget {
 }
 
 class _CustomAddNotesWidgetState extends State<CustomAddNotesWidget> {
-  late Box<NoteModel> box;
-
-  @override
-  void initState() {
-    super.initState();
-    box = Hive.box('model');
-  }
-
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController contentController = TextEditingController();
-    var formKey = GlobalKey<FormState>();
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              CustomTextFormField(
-                controller: titleController,
-                hintText: 'Title',
-              ),
-              const Gap(15),
-              CustomTextFormField(
-                hintText: 'Content',
-                controller: contentController,
-                maxLines: 4,
-              ),
-              const Gap(30),
-              CustomElevatedButton(
-                name: 'Add',
-                onpress: () {
-                  String id =
-                      "${DateTime.now().millisecond}${titleController.text}";
-                  if (formKey.currentState!.validate()) {
-                    box.put(
-                        id,
-                        NoteModel(
-                            title: titleController.text,
-                            content: contentController.text));
-                  }
-                },
-              )
-            ],
-          ),
+        child: BlocConsumer<AddNoteCubit, AddNoteState>(
+          listener: (context, state) {
+            if (state is AddNoteFailuerState) {
+              print('Failled ${state.errorMessage}');
+            }
+            if (state is AddNoteSuccessState) {
+              Navigator.pop(context);
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              child: ModalProgressHUD(
+                  inAsyncCall: state is AddNoteLoadingState ? true : false,
+                  child: const CustomFormAddNote()),
+            );
+          },
         ),
       ),
     );
