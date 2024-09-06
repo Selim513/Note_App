@@ -12,6 +12,7 @@ class CustomFloatingActionButton extends StatelessWidget {
         style: IconButton.styleFrom(backgroundColor: Colors.cyan),
         onPressed: () {
           showModalBottomSheet(
+            isScrollControlled: true,
             backgroundColor: Colors.grey[800],
             context: context,
             builder: (context) {
@@ -20,10 +21,8 @@ class CustomFloatingActionButton extends StatelessWidget {
           );
         },
         icon: const Icon(
-
           Icons.add,
           color: Colors.black,
-          
         ));
   }
 }

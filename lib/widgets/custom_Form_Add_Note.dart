@@ -1,7 +1,8 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:note_app/cubit/add_note_cubit/add_note_cubit.dart';
+import 'package:note_app/cubit/add_note_cubit/add_note_state.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:note_app/widgets/custom_button.dart';
 import 'package:note_app/widgets/custom_textFormField.dart';
@@ -36,15 +37,26 @@ class _CustomFormAddNoteState extends State<CustomFormAddNote> {
             maxLines: 4,
           ),
           const Gap(30),
-          CustomElevatedButton(
-            name: 'Add',
-            onpress: () {
-              if (formKey.currentState!.validate()) {
-                var note = NoteModel(
-                    title: titleController.text,
-                    content: contentController.text);
-                BlocProvider.of<AddNoteCubit>(context).addNote(note);
-              }
+          BlocBuilder<AddNoteCubit, AddNoteState>(
+            builder: (context, state) {
+              return state is AddNoteLoadingState
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : CustomElevatedButton(
+                      name: 'Add',
+                      onpress: () {
+                        if (formKey.currentState!.validate()) {
+                          var note = NoteModel(
+                            title: titleController.text,
+                            content: contentController.text,
+                            color: Colors.blue.value,
+                            date: DateTime.now(),
+                          );
+                          BlocProvider.of<AddNoteCubit>(context).addNote(note);
+                        }
+                      },
+                    );
             },
           )
         ],
