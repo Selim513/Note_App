@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:note_app/cubit/notes_cubit/note_cubit.dart';
+import 'package:note_app/model/note_model.dart';
 import 'package:note_app/widgets/custom_textFormField.dart';
 
-class EditNoteView extends StatelessWidget {
-  const EditNoteView({super.key});
+class EditNoteView extends StatefulWidget {
+  const EditNoteView({super.key, required this.notes});
+  final NoteModel notes;
+  @override
+  State<EditNoteView> createState() => _EditNoteViewState();
+}
 
+class _EditNoteViewState extends State<EditNoteView> {
+  String? title, content;
   @override
   Widget build(BuildContext context) {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController contentController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -25,8 +32,14 @@ class EditNoteView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15)),
               backgroundColor: Colors.grey[900],
             ),
-            onPressed: () {},
-            icon: const Icon(Icons.search),
+            onPressed: () {
+              widget.notes.title = title ?? widget.notes.title;
+              widget.notes.content = content ?? widget.notes.content;
+              widget.notes.save();
+              BlocProvider.of<NotesCubit>(context).fetchData();
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.check),
             color: Colors.white,
           ),
         ],
@@ -37,26 +50,20 @@ class EditNoteView extends StatelessWidget {
         child: Column(
           children: [
             CustomTextFormField(
-              controller: titleController,
+              onChanged: (value) {
+                title = value;
+              },
               hintText: 'Title',
             ),
             const Gap(15),
             CustomTextFormField(
+              onChanged: (value) {
+                content = value;
+              },
               hintText: 'Content',
-              controller: contentController,
               maxLines: 4,
             ),
             const Spacer(),
-            SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () {},
-                    child: const Text('Add')))
           ],
         ),
       ),
