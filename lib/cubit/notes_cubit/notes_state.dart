@@ -1,4 +1,4 @@
-import 'package:note_app/model/note_model.dart';
+
 
 class NotesState {}
 
